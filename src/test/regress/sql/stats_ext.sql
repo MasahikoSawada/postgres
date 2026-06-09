@@ -1759,3 +1759,21 @@ DROP TABLE stats_ext_tbl;
 DROP SCHEMA tststats CASCADE;
 DROP SCHEMA sts_sch1 CASCADE;
 DROP USER regress_stats_user1;
+
+-- CREATE STATISTICS checks for the owner
+CREATE ROLE regress_relowner;
+CREATE ROLE regress_stxowner;
+CREATE TABLE stats_ext_tbl (a int, b int);
+ALTER TABLE stats_ext_tbl OWNER TO regress_relowner;
+CREATE STATISTICS tst ON a, b FROM stats_ext_tbl;
+ALTER STATISTICS tst OWNER TO regress_stxowner;
+SELECT stxowner::regrole FROM pg_statistic_ext WHERE stxname = 'tst';
+
+-- re-creating statistics via ALTER TABLE preserve the statistics owner.
+ALTER TABLE stats_ext_tbl ALTER COLUMN a TYPE bigint;
+SELECT stxowner::regrole FROM pg_statistic_ext WHERE stxname = 'tst';
+
+-- Tidy up
+DROP TABLE stats_ext_tbl;
+DROP ROLE regress_relowner;
+DROP ROLE regress_stxowner;

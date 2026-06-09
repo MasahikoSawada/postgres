@@ -1891,7 +1891,8 @@ ProcessUtilitySlow(ParseState *pstate,
 					/* Run parse analysis ... */
 					stmt = transformStatsStmt(relid, stmt, queryString);
 
-					address = CreateStatistics(stmt, true);
+					address = CreateStatistics(list_make1_oid(relid), stmt,
+											   true);
 				}
 				break;
 
